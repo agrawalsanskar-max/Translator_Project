@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Translate</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500&family=Roboto:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --primary-purple: #4c11aa; /* Professional purple accent from reference */
+        --bg-gray: #f8f9fa;
+        --border: #dadce0;
+        --text-dark: #202124;
+        --text-gray: #5f6368;
+        --textarea-padding: 24px;
+      }
+
+      body {
+        font-family: "Roboto", Arial, sans-serif;
+        background-color: var(--bg-gray);
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        color: var(--text-dark);
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* --- Header Section --- */
+      .header {
+        width: 100%;
+        padding: 16px 24px;
+        background: white;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-sizing: border-box;
+      }
+
+      .logo {
+        font-family: "Google Sans", sans-serif;
+        font-size: 24px;
+        font-weight: 500;
+        color: var(--text-dark);
+      }
+
+      .project-tag {
+        font-size: 14px;
+        color: var(--text-gray);
+        background: #e8eaed;
+        padding: 6px 12px;
+        border-radius: 16px;
+      }
+
+      /* --- Main Translator Application --- */
+      .translator-app {
+        width: 90%;
+        max-width: 1200px;
+        margin-top: 48px;
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        background: white;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* Language Select Bar with Swap functionality */
+      .lang-bar {
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid var(--border);
+        padding: 10px 20px;
+        background-color: white;
+      }
+
+      .lang-tab {
+        padding: 10px 16px;
+        font-size: 15px;
+        font-weight: 500;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background 0.2s;
+        color: var(--text-gray);
+      }
+
+      .lang-tab.active {
+        background-color: #f1f3f4;
+        color: var(--primary-purple);
+      }
+
+      .swap-btn {
+        margin: 0 15px;
+        border: none;
+        background: none;
+        cursor: pointer;
+        color: var(--text-gray);
+        transition: color 0.2s;
+      }
+      .swap-btn:hover {
+        color: var(--primary-purple);
+      }
+
+      select.target-lang-select {
+        border: none;
+        font-size: 15px;
+        font-weight: 500;
+        cursor: pointer;
+        color: var(--text-gray);
+        outline: none;
+        flex-grow: 1;
+      }
+
+      /* --- Input & Output Grid (Side-by-Side) --- */
+      .translate-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        background-color: white;
+      }
+
+      .pane {
+        padding: var(--textarea-padding);
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+
+      .input-pane {
+        border-right: 1px solid var(--border);
+      }
+
+      .output-pane {
+        background-color: #f9f9f9;
+      }
+
+      /* Styling text areas without borders to mimic professional apps */
+      textarea {
+        width: 100%;
+        border: none;
+        outline: none;
+        font-size: 24px;
+        line-height: 32px;
+        resize: none;
+        font-family: inherit;
+        background-color: transparent;
+        color: var(--text-dark);
+        min-height: 150px;
+      }
+
+      /* Output pane often displays placeholder in a lighter color */
+      #outputText:empty::before {
+        content: "Translation";
+        color: #70757a;
+      }
+
+      /* Utility buttons inside text areas (like the X and Copy icons) */
+      .top-corner-btn {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        color: #9aa0a6;
+        transition: color 0.2s;
+      }
+      .top-corner-btn:hover {
+        color: #d93025;
+      } /* Red for clear, purple for copy */
+
+      .copy-btn {
+        color: var(--text-gray);
+      }
+      .copy-btn:hover {
+        color: var(--primary-purple);
+      }
+
+      /* Meta-data like character counters and loading states */
+      .char-counter {
+        text-align: right;
+        font-size: 13px;
+        color: #9aa0a6;
+        margin-top: 10px;
+      }
+
+      #status {
+        display: none;
+        font-size: 14px;
+        color: var(--primary-purple);
+        margin-top: 5px;
+      }
+
+      /* --- Sub-PBL Footer Controls --- */
+      .app-footer {
+        padding: 16px 20px;
+        background: white;
+        border-top: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      /* Professional Submit/Action button from reference */
+      .action-btn {
+        background-color: var(--primary-purple);
+        color: white;
+        border: none;
+        padding: 12px 28px;
+        border-radius: 6px;
+        font-weight: 500;
+        cursor: pointer;
+        font-family: "Google Sans", sans-serif;
+        font-size: 15px;
+        box-shadow: 0 1px 2px rgba(76, 17, 170, 0.3);
+        transition: box-shadow 0.2s;
+      }
+
+      .action-btn:hover {
+        box-shadow: 0 2px 4px rgba(76, 17, 170, 0.5);
+      }
+
+      /* Microphone/Audio control button */
+      .icon-control-btn {
+        border: none;
+        background: none;
+        cursor: pointer;
+        color: var(--text-gray);
+        padding: 10px;
+        border-radius: 50%;
+        transition:
+          background 0.2s,
+          color 0.2s;
+      }
+
+      .icon-control-btn:hover {
+        background-color: rgba(95, 99, 104, 0.1);
+        color: var(--text-dark);
+      }
+
+      /* --- Audio Player Element --- */
+      #audioPlayer {
+        display: none;
+      }
+
+      /* --- RESPONSIVE DESIGN FOR MOBILE --- */
+      @media (max-width: 900px) {
+        .translator-app {
+          width: 95%;
+          margin-top: 20px;
+        }
+        .translate-grid {
+          grid-template-columns: 1fr;
+        }
+        .input-pane {
+          border-right: none;
+          border-bottom: 1px solid var(--border);
+        }
+        textarea {
+          font-size: 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <span class="logo">Language Lab</span>
+    </div>
+
+    <div class="translator-app">
+      <div class="lang-bar">
+        <div class="lang-tab active">AUTO-DETECT (EN)</div>
+
+        <button class="swap-btn" onclick="swapPanes()" title="Swap panes">
+          <svg width="24" height="24" viewBox="0 0 24 24">
+            <path
+              fill="currentColor"
+              d="M16 17.01V11c0-.55-.45-1-1-1s-1 .45-1 1v6.01h-2.51c-.45 0-.67.54-.35.86l3.5 3.5c.2.2.51.2.71 0l3.5-3.5c.32-.32.1-.86-.35-.86H16zm-6-4.02V7c0-.55-.45-1-1-1s-1 .45-1 1v5.99H5.49c-.45 0-.67.54-.35.86l3.5 3.5c.2.2.51.2.71 0l3.5-3.5c.32-.32.1-.86-.35-.86H10zM14 18h2v2h-2zm-2 0h2v2h-2zm-2 0h2v2h-2zm-2 0h2v2h-2zm-2 0h2v2h-2zm-2 0h2v2h-2zm12-2h2v2h-2zm-2 0h2v2h-2zm-2 0h2v2h-2zm-2 0h2v2h-2zm-2 0h2v2h-2zm-2 0h2v2h-2zm12-2h2v2h-2zm-2 0h2v2h-2zm-2 0h2v2h-2zm-2 0h2v2h-2zm-2 0h2v2h-2zm-2 0h2v2h-2zm12-2h2v2h-2zm-2 0h2v2h-2zm-2 0h2v2h-2zm-2 0h2v2h-2zm-2 0h2v2h-2zm-2 0h2v2h-2zm12-2h2v2h-2zm-2 0h2v2h-2zm-2 0h2v2h-2zm-2 0h2v2h-2zm-2 0h2v2h-2zm-2 0h2v2h-2z"
+            ></path>
+          </svg>
+        </button>
+
+        <select id="targetLangSelect" class="target-lang-select">
+          <optgroup label="Regional Indian">
+            <option value="hi">HINDI</option>
+            <option value="mr">MARATHI</option>
+            <option value="gu">GUJARATI</option>
+            <option value="bn">BENGALI</option>
+            <option value="ta">TAMIL</option>
+            <option value="te">TELUGU</option>
+            <option value="kn">KANNADA</option>
+            <option value="pa">PUNJABI</option>
+          </optgroup>
+          <optgroup label="Global">
+            <option value="en">ENGLISH</option>
+            <option value="fr">FRENCH</option>
+            <option value="es">SPANISH</option>
+            <option value="de">GERMAN</option>
+            <option value="ja">JAPANESE</option>
+            <option value="ko">KOREAN</option>
+            <option value="ru">RUSSIAN</option>
+            <option value="ar">ARABIC</option>
+          </optgroup>
+        </select>
+      </div>
+
+      <div class="translate-grid">
+        <div class="pane input-pane">
+          <textarea
+            id="inputText"
+            rows="6"
+            placeholder="Type or paste to translate"
+            oninput="updateCharCount()"
+          ></textarea>
+          <div class="char-counter">
+            <span id="currentCharCount">0</span> / 2,000
+          </div>
+          <button
+            class="top-corner-btn"
+            onclick="clearInput()"
+            title="Clear Text"
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24">
+              <path
+                fill="currentColor"
+                d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+              ></path>
+            </svg>
+          </button>
+          <div id="status">Connecting...</div>
+        </div>
+
+        <div class="pane output-pane">
+          <textarea
+            id="outputText"
+            rows="6"
+            readonly
+            placeholder="Translation"
+          ></textarea>
+          <button
+            class="top-corner-btn copy-btn"
+            onclick="copyTranslation()"
+            title="Copy to Clipboard"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24">
+              <path
+                fill="currentColor"
+                d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"
+              ></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="app-footer">
+        <div class="audio-controls">
+          <button
+            class="icon-control-btn"
+            onclick="playAudio()"
+            title="Listen to Translation"
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24">
+              <path
+                fill="currentColor"
+                d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V5zM17.3 11c0 2.65-2.15 4.8-4.8 4.8-2.65 0-4.8-2.15-4.8-4.8H6.2c0 3.2 2.3 5.86 5.3 6.33V20c0 .55.45 1 1 1s1-.45 1-1v-2.67c3-.47 5.3-3.13 5.3-6.33h-1.5z"
+              ></path>
+            </svg>
+          </button>
+        </div>
+        <button class="action-btn" onclick="requestTranslation()">
+          Translate
+        </button>
+      </div>
+    </div>
+
+    <audio id="audioPlayer"></audio>
+
+    <script>
+      let currentAudioUrl = "";
+
+      // FR1: Detects empty text and manages loading state
+      async function requestTranslation() {
+        const text = document.getElementById("inputText").value;
+        const targetLang = document.getElementById("targetLangSelect").value;
+        const outputArea = document.getElementById("outputText");
+        const statusIndicator = document.getElementById("status");
+
+        if (!text.trim()) {
+          alert("Please enter text before translating.");
+          return;
+        }
+
+        // FR4: Dynamic UI feedback without page refresh
+        statusIndicator.style.display = "block";
+        statusIndicator.innerText = "Processing...";
+        outputArea.value = "";
+        currentAudioUrl = ""; // Reset old audio
+
+        try {
+          // Post data to the Flask endpoint
+          const response = await fetch("/translate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text: text, target_lang: targetLang }),
+          });
+
+          const data = await response.json();
+          statusIndicator.style.display = "none";
+
+          if (response.ok) {
+            // Update the DOM with the translation
+            outputArea.value = data.translated_text;
+            outputArea.style.color = "var(--text-dark)";
+
+            // FR3: Stores the URL for the new audio featuer
+            // Using timestamp query bypasses browser audio cache problems
+            currentAudioUrl = data.audio_url + "?t=" + new Date().getTime();
+
+            // Automatically play on translation like many major apps
+            setTimeout(playAudio, 100);
+          } else {
+            outputArea.value = "Translation error: " + data.error;
+          }
+        } catch (error) {
+          statusIndicator.innerText = "Error: System not connected.";
+          console.error("Connection Error:", error);
+        }
+      }
+
+      // FR5: Audio playback functionality
+      function playAudio() {
+        if (!currentAudioUrl) return; // Only play if a translation has been done
+        const player = document.getElementById("audioPlayer");
+        player.src = currentAudioUrl;
+        player
+          .play()
+          .catch((e) => console.log("Audio play blocked/failed:", e));
+      }
+
+      // UX Feature: The Clear (X) Button from the reference
+      function clearInput() {
+        document.getElementById("inputText").value = "";
+        document.getElementById("outputText").value = "";
+        document.getElementById("outputText").style.color = "#70757a";
+        currentAudioUrl = "";
+        updateCharCount();
+      }
+
+      // UX Feature: Copy to Clipboard from the reference
+      function copyTranslation() {
+        const translation = document.getElementById("outputText").value;
+        if (!translation) return;
+        navigator.clipboard.writeText(translation).then(() => {
+          alert("Translation copied!");
+        });
+      }
+
+      // UX Feature: Dynamic character counter from the reference
+      function updateCharCount() {
+        const textLength = document.getElementById("inputText").value.length;
+        document.getElementById("currentCharCount").innerText = textLength;
+      }
+
+      // UX Feature: Allow user to swap input and output text easily
+      function swapPanes() {
+        const inputText = document.getElementById("inputText");
+        const outputArea = document.getElementById("outputText");
+
+        if (outputArea.value) {
+          inputText.value = outputArea.value;
+          outputArea.value = "";
+          requestTranslation();
+        }
+      }
+    </script>
+  </body>
+</html>
